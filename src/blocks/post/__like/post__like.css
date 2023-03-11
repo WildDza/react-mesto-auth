@@ -1,0 +1,5 @@
+.post__like {
+  display: grid;
+  flex-direction: column;
+  margin-right: 20px;
+}

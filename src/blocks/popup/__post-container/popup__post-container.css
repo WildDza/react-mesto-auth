@@ -1,0 +1,7 @@
+.popup__post-container {
+  margin: 0 auto;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}

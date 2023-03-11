@@ -1,0 +1,25 @@
+.posts {
+  margin: 51px auto 67px;
+  display: grid;
+  grid-gap: 20px 17px;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 880px;
+}
+
+@media screen and (max-width: 879px) {
+  .posts {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+  }
+}
+
+@media screen and (max-width: 599px) {
+  .posts {
+    margin-top: 36px;
+    margin-bottom: 48px;
+    grid-template-columns: 1fr;
+    width: calc(100% - 19px * 2);
+    grid-gap: 20px;
+    max-width: 320px;
+  }
+}

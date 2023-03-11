@@ -1,0 +1,24 @@
+.profile__edit-icon {
+  background: none;
+  width: 24px;
+  height: 24px;
+  margin-bottom: 5px;
+  align-self: end;
+  background-image: url(../../../images/edit-icon.svg);
+  border: 1px solid #fff;
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transition: opacity 0.3s linear 0.05s;
+}
+
+.profile__edit-icon:hover {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 879px) {
+  .profile__edit-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

@@ -1,0 +1,14 @@
+.post__like-icon {
+  background-image: url(../../../images/like-icon.svg);
+  border: none;
+  width: 22px;
+  height: 19px;
+  background-repeat: no-repeat;
+  background-color: #fff;
+  transition: 0.3s linear 0.05s;
+}
+
+.post__like-icon:hover {
+  opacity: 0.5;
+  cursor: pointer;
+}

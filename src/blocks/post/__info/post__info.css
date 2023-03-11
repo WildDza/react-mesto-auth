@@ -1,0 +1,8 @@
+.post__info {
+  color: #000;
+  width: 282px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 72px;
+}

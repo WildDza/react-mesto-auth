@@ -1,0 +1,4 @@
+.post__like-icon_active {
+  background-image: url(../../../../images/black-like-icon.svg);
+  transition: opacity 0.3s linear 0.05s;
+}
