@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Route, Switch } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -134,15 +135,31 @@ function App() {
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
         <Header />
-        <Main
-          onEditProfile={handleEditProfileClick}
-          onPostClick={handlePostClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          posts={posts}
-          onPostLike={handlePostLike}
-          onPostDelete={handlePostDeleteClick}
-        />
+
+        <Switch>
+          <ProtectedRoute
+            exact
+            path="/"
+            loggedIn={loggedIn}
+            component={Main}
+            onEditProfile={handleEditProfileClick}
+            onPostClick={handlePostClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            posts={posts}
+            onPostLike={handlePostLike}
+            onPostDelete={handlePostDeleteClick}
+          />
+
+          <Route path="/sign-up">
+            <Register />
+          </Route>
+
+          <Route path="/sign-in">
+            <Login />
+          </Route>
+        </Switch>
+
         <Footer />
 
         <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
