@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
+// import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
+import api from "../utils/Api";
+import auth from "../utils/Auth";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
 import ImagePopup from "./ImagePopup";
-import api from "../utils/Api";
-import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import DeletePostConfirm from "./DeletePostConfirm";
+import ProtectedRoute from "./ProtectedRoute";
+import Login from "./Login";
+import Register from "./Register";
+import InfoTooltip from "./InfoTooltip";
 
 function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -17,28 +23,49 @@ function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [isConfirmDeletePopupOpen, setIsConfirmDeletePopupOpen] = useState(false);
+  const [isStatusPopupOpen, setIsStatusPopupOpen] = useState(false);
+
   const [posts, setPosts] = useState([]);
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [currentPost, setCurrentPost] = useState({});
 
-  useEffect(() => {
-    api
-      .getProfileInformation()
-      .then((data) => {
-        setCurrentUser(data);
-      })
-      .catch((error) => console.log("Ошибка... " + error));
-  }, []);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [tooltipInfo, setTooltipInfo] = useState({ success: null, text: "" });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    api
-      .getInitialCards()
-      .then((data) => {
-        setPosts(data);
-      })
-      .catch((error) => console.log("Ошибка... " + error));
+    tokenCheck();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function tokenCheck() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      auth
+        .checkToken(token)
+        .then((res) => {
+          if (res) {
+            setLoggedIn(true);
+            setUserEmail(res.data.email);
+            navigate("/", { replace: true });
+          }
+        })
+        .catch((error) => console.log("Ошибка... " + error));
+    }
+  }
+
+  useEffect(() => {
+    if (loggedIn) {
+      Promise.all([api.getProfileInformation(), api.getInitialCards()])
+        .then(([dataProfile, dataPosts]) => {
+          setCurrentUser(dataProfile);
+          setPosts(dataPosts);
+        })
+        .catch((error) => console.log("Ошибка... " + error));
+    }
+  }, [loggedIn]);
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -121,6 +148,43 @@ function App() {
       .catch((error) => console.log("Ошибка... " + error));
   }
 
+  ///
+
+  // function handleSignInUser(data) {
+  //   auth
+  //     .register(data)
+  //     .then((res) => {
+
+  //     })
+  //     .catch((err) => {
+
+  //     })
+  //     .finally(() => {
+  //       setIsStatusPopupOpen(true);
+  //     });
+  // }
+
+  function handleLogOut() {
+    setLoggedIn(false);
+  }
+
+  function handleAuth(data) {
+    auth
+      .authorize(data.email, data.password)
+      .then((res) => {
+        if (res.token) {
+          setUserEmail(data.email);
+          setLoggedIn(true);
+        }
+      })
+      .then(() => {
+        navigate("/", { replace: true });
+      })
+      .catch((error) => console.log("Ошибка... " + error));
+  }
+
+  ///
+
   function closeAllPopups() {
     setIsEditAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
@@ -129,37 +193,39 @@ function App() {
     setSelectedCard({});
     setCurrentPost({});
     setIsConfirmDeletePopupOpen(false);
+    setIsStatusPopupOpen(false);
   }
 
   return (
-    <div className="page">
-      <CurrentUserContext.Provider value={currentUser}>
-        <Header />
+    <CurrentUserContext.Provider value={currentUser}>
+      <div className="page">
+        <Header onLogged={loggedIn} userEmail={userEmail} onLogOut={handleLogOut} />
 
-        <Switch>
-          <ProtectedRoute
+        <Routes>
+          <Route
+            path="/sign-up"
+            element={<Register isRegistered={tooltipInfo.success} setTooltipInfo={setTooltipInfo} isOpen={setIsStatusPopupOpen} />}
+          />
+          <Route path="/sign-in" element={<Login onLogin={handleAuth} setUserEmail={setUserEmail} />} />
+
+          <Route
             exact
             path="/"
-            loggedIn={loggedIn}
-            component={Main}
-            onEditProfile={handleEditProfileClick}
-            onPostClick={handlePostClick}
-            onAddPlace={handleAddPlaceClick}
-            onEditAvatar={handleEditAvatarClick}
-            posts={posts}
-            onPostLike={handlePostLike}
-            onPostDelete={handlePostDeleteClick}
+            element={
+              <ProtectedRoute
+                element={Main}
+                loggedIn={loggedIn}
+                onEditProfile={handleEditProfileClick}
+                onPostClick={handlePostClick}
+                onAddPlace={handleAddPlaceClick}
+                onEditAvatar={handleEditAvatarClick}
+                posts={posts}
+                onPostLike={handlePostLike}
+                onPostDelete={handlePostDeleteClick}
+              />
+            }
           />
-
-          <Route path="/sign-up">
-            <Register />
-          </Route>
-
-          <Route path="/sign-in">
-            <Login />
-          </Route>
-        </Switch>
-
+        </Routes>
         <Footer />
 
         <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
@@ -171,8 +237,10 @@ function App() {
         <DeletePostConfirm post={currentPost} isOpen={isConfirmDeletePopupOpen} onClose={closeAllPopups} onSubmit={handlePostDelete} />
 
         <ImagePopup post={selectedCard} isOpen={isImagePopupOpen} onClose={closeAllPopups} />
-      </CurrentUserContext.Provider>
-    </div>
+
+        <InfoTooltip tooltipInfo={tooltipInfo} setTooltipInfo={setTooltipInfo} isOpen={isStatusPopupOpen} onClose={closeAllPopups} />
+      </div>
+    </CurrentUserContext.Provider>
   );
 }
 
