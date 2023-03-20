@@ -37,9 +37,7 @@ function Login(props) {
           onChange={handleChange}
           minLength="2"
           required
-        >
-          <span className="email-input-error"></span>
-        </input>
+        ></input>
 
         <input
           className="auth__input auth__input_pass"
@@ -49,11 +47,9 @@ function Login(props) {
           value={formValue.password || ""}
           placeholder="Пароль"
           onChange={handleChange}
-          minlength="8"
+          minLength="8"
           required
-        >
-          <span className="password-input-error"></span>
-        </input>
+        ></input>
         <button className="auth__submit" type="submit" aria-label="кнопка подтверждения входа">
           Войти
         </button>

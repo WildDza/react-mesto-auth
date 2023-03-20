@@ -6,7 +6,7 @@ function Header(props) {
 
   function handleSignOut() {
     localStorage.removeItem("token");
-    props.handleLogOut();
+    props.onLogOut();
     navigate("/sign-in");
   }
 
@@ -18,7 +18,7 @@ function Header(props) {
           exact
           path="/"
           element={
-            <ul className="header__navigations">
+            <ul className="header__navigation">
               <li>
                 <p className="header__email">{props.userEmail}</p>
               </li>
@@ -42,7 +42,7 @@ function Header(props) {
           path="/sign-up"
           element={
             <Link to="/sign-in" className="header__link">
-              Вход
+              Войти
             </Link>
           }
         ></Route>

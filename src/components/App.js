@@ -18,12 +18,14 @@ import Register from "./Register";
 import InfoTooltip from "./InfoTooltip";
 
 function App() {
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-  const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
-  const [isConfirmDeletePopupOpen, setIsConfirmDeletePopupOpen] = useState(false);
-  const [isStatusPopupOpen, setIsStatusPopupOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState({
+    isEditAvatarPopupOpen: false,
+    isEditProfilePopupOpen: false,
+    isAddPlacePopupOpen: false,
+    isImagePopupOpen: false,
+    isConfirmDeletePopupOpen: false,
+    isStatusPopupOpen: false,
+  });
 
   const [posts, setPosts] = useState([]);
   const [selectedCard, setSelectedCard] = useState({});
@@ -68,24 +70,24 @@ function App() {
   }, [loggedIn]);
 
   function handleEditAvatarClick() {
-    setIsEditAvatarPopupOpen(true);
+    setIsPopupOpen({ isEditAvatarPopupOpen: true });
   }
 
   function handleEditProfileClick() {
-    setIsEditProfilePopupOpen(true);
+    setIsPopupOpen({ isEditProfilePopupOpen: true });
   }
 
   function handleAddPlaceClick() {
-    setIsAddPlacePopupOpen(true);
+    setIsPopupOpen({ isAddPlacePopupOpen: true });
   }
 
   function handlePostClick(data) {
-    setIsImagePopupOpen(true);
+    setIsPopupOpen({ isImagePopupOpen: true });
     setSelectedCard(data);
   }
 
   function handlePostDeleteClick(data) {
-    setIsConfirmDeletePopupOpen(true);
+    setIsPopupOpen({ isConfirmDeletePopupOpen: true });
     setCurrentPost(data);
   }
 
@@ -148,21 +150,21 @@ function App() {
       .catch((error) => console.log("Ошибка... " + error));
   }
 
-  ///
-
-  // function handleSignInUser(data) {
-  //   auth
-  //     .register(data)
-  //     .then((res) => {
-
-  //     })
-  //     .catch((err) => {
-
-  //     })
-  //     .finally(() => {
-  //       setIsStatusPopupOpen(true);
-  //     });
-  // }
+  function handleRegister(data) {
+    auth
+      .register(data.email, data.password)
+      .then((res) => {
+        if (res) {
+          setTooltipInfo({ success: true, text: "Вы успешно зарегистрировались!" });
+        } else {
+          setTooltipInfo({ success: false, text: "Что-то пошло не так! Попробуйте ещё раз." });
+        }
+      })
+      .catch((error) => {
+        console.log("Ошибка... " + error);
+        setTooltipInfo({ success: false, text: "Что-то пошло не так! Попробуйте ещё раз." });
+      });
+  }
 
   function handleLogOut() {
     setLoggedIn(false);
@@ -172,7 +174,7 @@ function App() {
     auth
       .authorize(data.email, data.password)
       .then((res) => {
-        if (res.token) {
+        if (res) {
           setUserEmail(data.email);
           setLoggedIn(true);
         }
@@ -183,17 +185,8 @@ function App() {
       .catch((error) => console.log("Ошибка... " + error));
   }
 
-  ///
-
   function closeAllPopups() {
-    setIsEditAvatarPopupOpen(false);
-    setIsEditProfilePopupOpen(false);
-    setIsAddPlacePopupOpen(false);
-    setIsImagePopupOpen(false);
-    setSelectedCard({});
-    setCurrentPost({});
-    setIsConfirmDeletePopupOpen(false);
-    setIsStatusPopupOpen(false);
+    setIsPopupOpen({ prop: false });
   }
 
   return (
@@ -204,41 +197,47 @@ function App() {
         <Routes>
           <Route
             path="/sign-up"
-            element={<Register isRegistered={tooltipInfo.success} setTooltipInfo={setTooltipInfo} isOpen={setIsStatusPopupOpen} />}
+            element={
+              <Register
+                setIsPopupOpen={setIsPopupOpen}
+                onRegister={handleRegister}
+                isRegistered={tooltipInfo.success}
+                setTooltipInfo={setTooltipInfo}
+              />
+            }
           />
-          <Route path="/sign-in" element={<Login onLogin={handleAuth} setUserEmail={setUserEmail} />} />
+          <Route path="/sign-in" element={<Login onLogIn={handleAuth} setUserEmail={setUserEmail} />} />
 
           <Route
             exact
             path="/"
             element={
-              <ProtectedRoute
-                element={Main}
-                loggedIn={loggedIn}
-                onEditProfile={handleEditProfileClick}
-                onPostClick={handlePostClick}
-                onAddPlace={handleAddPlaceClick}
-                onEditAvatar={handleEditAvatarClick}
-                posts={posts}
-                onPostLike={handlePostLike}
-                onPostDelete={handlePostDeleteClick}
-              />
+              <ProtectedRoute isAllowed={loggedIn}>
+                <Main
+                  onEditProfile={handleEditProfileClick}
+                  onPostClick={handlePostClick}
+                  onAddPlace={handleAddPlaceClick}
+                  onEditAvatar={handleEditAvatarClick}
+                  posts={posts}
+                  onPostLike={handlePostLike}
+                  onPostDelete={handlePostDeleteClick}
+                />
+              </ProtectedRoute>
             }
           />
         </Routes>
         <Footer />
+        <InfoTooltip tooltipInfo={tooltipInfo} setTooltipInfo={setTooltipInfo} isOpen={isPopupOpen.isStatusPopupOpen} onClose={closeAllPopups} />
 
-        <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
+        <EditProfilePopup isOpen={isPopupOpen.isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
 
-        <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
+        <EditAvatarPopup isOpen={isPopupOpen.isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
 
-        <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPost={handleAddPost} />
+        <AddPlacePopup isOpen={isPopupOpen.isAddPlacePopupOpen} onClose={closeAllPopups} onAddPost={handleAddPost} />
 
-        <DeletePostConfirm post={currentPost} isOpen={isConfirmDeletePopupOpen} onClose={closeAllPopups} onSubmit={handlePostDelete} />
+        <DeletePostConfirm post={currentPost} isOpen={isPopupOpen.isConfirmDeletePopupOpen} onClose={closeAllPopups} onSubmit={handlePostDelete} />
 
-        <ImagePopup post={selectedCard} isOpen={isImagePopupOpen} onClose={closeAllPopups} />
-
-        <InfoTooltip tooltipInfo={tooltipInfo} setTooltipInfo={setTooltipInfo} isOpen={isStatusPopupOpen} onClose={closeAllPopups} />
+        <ImagePopup post={selectedCard} isOpen={isPopupOpen.isImagePopupOpen} onClose={closeAllPopups} />
       </div>
     </CurrentUserContext.Provider>
   );

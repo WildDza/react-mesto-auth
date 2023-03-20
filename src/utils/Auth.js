@@ -4,6 +4,13 @@ class Auth {
     this._headers = headers;
   }
 
+  _checkResponse(res) {
+    if (res.ok) {
+      return res.json;
+    }
+    return Promise.reject(`${res.status}`);
+  }
+
   register(email, password) {
     return fetch(`${this._baseUrl}/signup`, {
       method: "POST",
@@ -12,7 +19,7 @@ class Auth {
         email,
         password,
       }),
-    });
+    }).then(this._checkResponse);
   }
 
   authorize(email, password) {
@@ -23,11 +30,11 @@ class Auth {
         email,
         password,
       }),
-    });
+    }).then(this._checkResponse);
   }
 
   checkToken() {
-    return fetch(`${this._baseUrl}/users/me`, { headers: this._headers });
+    return fetch(`${this._baseUrl}/users/me`, { headers: this._headers }).then(this._checkResponse);
   }
 }
 

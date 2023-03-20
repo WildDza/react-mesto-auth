@@ -13,8 +13,8 @@ function InfoTooltip(props) {
   }
 
   return (
-    <div className={`popup popup__infotooltip ${props.isOpen ? "popup_opened" : ""}`}>
-      <div className="popup__container">
+    <div className={`popup popup__info-tooltip ${props.isOpen ? "popup_show" : ""}`}>
+      <div className="popup__content">
         <button
           className="popup__close-icon"
           type="button"
@@ -22,9 +22,7 @@ function InfoTooltip(props) {
           onClick={props.tooltipInfo.success ? handleClose : props.onClose}
         />
         <img className="popup__regstatus" src={props.tooltipInfo.success ? iconSuccess : iconError} alt="Иконка статуса" />
-        <h3 className="popup__regstatus-text">
-          {props.tooltipInfo.success ? `Вы успешно зарегистрировались!` : `Что-то пошло не так! Попробуйте ещё раз.`}
-        </h3>
+        <h3 className="popup__regstatus-text">{props.tooltipInfo.text}</h3>
       </div>
     </div>
   );

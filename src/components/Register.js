@@ -18,7 +18,7 @@ function Register(props) {
   function handleSubmit(evt) {
     evt.preventDefault();
     props.onRegister(formValue);
-    props.isStatusPopupOpen(true);
+    props.setIsPopupOpen({ isStatusPopupOpen: true });
   }
 
   return (
@@ -35,10 +35,7 @@ function Register(props) {
           onChange={handleChange}
           minLength="2"
           required
-        >
-          {/* задел на будущую валиадацию */}
-          <span className="email-input-error"></span>
-        </input>
+        />
 
         <input
           className="auth__input auth__input_pass"
@@ -48,22 +45,19 @@ function Register(props) {
           value={formValue.password || ""}
           placeholder="Пароль"
           onChange={handleChange}
-          minlength="8"
+          minLength="8"
           required
-        >
-          {/* задел на будущую валидацию */}
-          <span className="password-input-error"></span>
-        </input>
+        />
         <button className="auth__submit" type="submit" aria-label="кнопка подтверждения регистрации">
-          Войти
+          Зарегистрироваться
         </button>
       </form>
-      <span className="auth__question">
-        Уже зарегистрированы?
+      <p className="auth__question">
+        Уже зарегистрированы?{" "}
         <Link className="auth__link" to="/sign-in">
           Войти
         </Link>
-      </span>
+      </p>
     </section>
   );
 }
