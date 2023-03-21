@@ -19,9 +19,7 @@ class Auth {
         email,
         password,
       }),
-    })
-      .then(this._checkResponse)
-      .catch((error) => console.log("Ошибка... " + error));
+    }).then(this._checkResponse);
   }
 
   authorize(email, password) {
@@ -36,8 +34,7 @@ class Auth {
           localStorage.setItem("token", res.token);
           return res;
         }
-      })
-      .catch((error) => console.log("Ошибка... " + error));
+      });
   }
 
   //передать токен
@@ -47,9 +44,7 @@ class Auth {
         "Content-Type": "application/json",
         authorization: `Bearer ${token}`,
       },
-    })
-      .then(this._checkResponse)
-      .catch((error) => console.log("Ошибка... " + error));
+    }).then(this._checkResponse);
   }
 }
 

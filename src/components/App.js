@@ -182,7 +182,10 @@ function App() {
       .then(() => {
         navigate("/", { replace: true });
       })
-      .catch((error) => console.log("Ошибка... " + error));
+      .catch((error) => {
+        console.log("Ошибка... " + error);
+        setTooltipInfo({ success: false, text: "Что-то пошло не так! Попробуйте ещё раз." });
+      });
   }
 
   function closeAllPopups() {
