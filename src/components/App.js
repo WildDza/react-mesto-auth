@@ -34,7 +34,7 @@ function App() {
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [tooltipInfo, setTooltipInfo] = useState({ success: null, text: "" });
+  const [tooltipInfo, setTooltipInfo] = useState({ success: null, text: "", isOpen: false });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -185,6 +185,7 @@ function App() {
       .catch((error) => {
         console.log("Ошибка... " + error);
         setTooltipInfo({ success: false, text: "Что-то пошло не так! Попробуйте ещё раз." });
+        setIsPopupOpen({ isStatusPopupOpen: true });
       });
   }
 
